@@ -1,25 +1,25 @@
-﻿namespace ChaosClock
+﻿using System.Timers;
+
+namespace ChaosClock;
+
+public partial class MainPage : ContentPage
 {
-    public partial class MainPage : ContentPage
+    private readonly System.Timers.Timer timer;
+
+    public MainPage()
     {
-        int count = 0;
+        InitializeComponent();
 
-        public MainPage()
-        {
-            InitializeComponent();
-        }
-
-        private void OnCounterClicked(object sender, EventArgs e)
-        {
-            count++;
-
-            if (count == 1)
-                CounterBtn.Text = $"Clicked {count} time";
-            else
-                CounterBtn.Text = $"Clicked {count} times";
-
-            SemanticScreenReader.Announce(CounterBtn.Text);
-        }
+        timer = new System.Timers.Timer(1000);
+        timer.Elapsed += UpdateClock;
+        timer.Start();
     }
 
+    private void UpdateClock(object? sender, System.Timers.ElapsedEventArgs e)
+    {
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            ClockLabel.Text = DateTime.Now.ToString("HH:mm:ss");
+        });
+    }
 }
