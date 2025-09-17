@@ -10,6 +10,11 @@
                FontSize="48"
                TextColor="Lime"
                HorizontalOptions="Center" />
+
+        <Button x:Name="ToggleButton"
+                Text="Toggle Binary"
+                Clicked="onToggleBinaryClicked"
+                HorizontalOptions="Center" />
     </VerticalStackLayout>
 
 </ContentPage>
