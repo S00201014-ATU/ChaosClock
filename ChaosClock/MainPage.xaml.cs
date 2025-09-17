@@ -52,6 +52,10 @@ public partial class MainPage : ContentPage
             {
                 ClockLabel.Text = ConvertToReversed(DateTime.Now);
             }
+            else if (modeIndex == 9)
+            {
+                ClockLabel.Text = ConvertToMorse(DateTime.Now);
+            }
             else
             {
                 ClockLabel.Text = DateTime.Now.ToString("HH:mm:ss");
@@ -61,7 +65,7 @@ public partial class MainPage : ContentPage
 
     private void OnSwitchModeClicked(object sender, EventArgs e)
     {
-        modeIndex = (modeIndex + 1) % 9;
+        modeIndex = (modeIndex + 1) % 10;
 
         ModeButton.Text = modeIndex switch
         {
@@ -73,7 +77,8 @@ public partial class MainPage : ContentPage
             5 => "Switch to Octal",
             6 => "Switch to ASCII",
             7 => "Switch to Reversed",
-            8 => "Switch to Normal",
+            8 => "Switch to Morse Code",
+            9 => "Switch to Normal",
             _ => "Switch Mode"
         };
     }
@@ -154,6 +159,18 @@ public partial class MainPage : ContentPage
         char[] arr = normal.ToCharArray();
         Array.Reverse(arr);
         return new string(arr);
+    }
+    private string ConvertToMorse(DateTime time)
+    {
+        var morseMap = new Dictionary<char, string>
+    {
+        {'0', "-----"}, {'1', ".----"}, {'2', "..---"}, {'3', "...--"},
+        {'4', "....-"}, {'5', "....."}, {'6', "-...."}, {'7', "--..."},
+        {'8', "---.."}, {'9', "----."}, {':', ":"}
+    };
+
+        string normal = time.ToString("HH:mm:ss");
+        return string.Join(" ", normal.Select(c => morseMap[c]));
     }
 
     private string ToRoman(int number)
