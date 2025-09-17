@@ -6,6 +6,10 @@ public partial class MainPage : ContentPage
 {
     private readonly System.Timers.Timer timer;
     private int modeIndex = 0;
+    private bool chaosMode = false;
+    private readonly Random rng = new();
+    private List<int> chaosOrder = new();
+    private int chaosPosition = 0;
 
     public MainPage()
     {
@@ -20,52 +24,48 @@ public partial class MainPage : ContentPage
     {
         MainThread.BeginInvokeOnMainThread(() =>
         {
-            if (modeIndex == 1)
+            int displayMode = modeIndex;
+
+            if (chaosMode)
             {
-                ClockLabel.Text = ConvertToBinary(DateTime.Now);
+                if (chaosOrder.Count == 0)
+                {
+                    chaosOrder = Enumerable.Range(0, 10).OrderBy(_ => rng.Next()).ToList();
+                    chaosPosition = 0;
+                }
+
+                displayMode = chaosOrder[chaosPosition];
+                chaosPosition = (chaosPosition + 1) % chaosOrder.Count;
             }
-            else if (modeIndex == 2)
+
+            string display = displayMode switch
             {
-                ClockLabel.Text = ConvertToRomanNumerals(DateTime.Now);
-            }
-            else if (modeIndex == 3)
-            {
-                ClockLabel.Text = ConvertToWords(DateTime.Now);
-            }
-            else if (modeIndex == 4)
-            {
-                ClockLabel.Text = ConvertToHex(DateTime.Now);
-            }
-            else if (modeIndex == 5)
-            {
-                ClockLabel.Text = ConvertToUnixTimestamp(DateTime.Now);
-            }
-            else if (modeIndex == 6)
-            {
-                ClockLabel.Text = ConvertToOctal(DateTime.Now);
-            }
-            else if (modeIndex == 7)
-            {
-                ClockLabel.Text = ConvertToAscii(DateTime.Now);
-            }
-            else if (modeIndex == 8)
-            {
-                ClockLabel.Text = ConvertToReversed(DateTime.Now);
-            }
-            else if (modeIndex == 9)
-            {
-                ClockLabel.Text = ConvertToMorse(DateTime.Now);
-            }
-            else
-            {
-                ClockLabel.Text = DateTime.Now.ToString("HH:mm:ss");
-            }
+                1 => ConvertToBinary(DateTime.Now),
+                2 => ConvertToRomanNumerals(DateTime.Now),
+                3 => ConvertToWords(DateTime.Now),
+                4 => ConvertToHex(DateTime.Now),
+                5 => ConvertToUnixTimestamp(DateTime.Now),
+                6 => ConvertToOctal(DateTime.Now),
+                7 => ConvertToAscii(DateTime.Now),
+                8 => ConvertToReversed(DateTime.Now),
+                9 => ConvertToMorse(DateTime.Now),
+                _ => DateTime.Now.ToString("HH:mm:ss")
+            };
+
+            ClockLabel.Text = display;
         });
     }
 
     private void OnSwitchModeClicked(object sender, EventArgs e)
     {
-        modeIndex = (modeIndex + 1) % 10;
+        modeIndex = (modeIndex + 1) % 11;
+        chaosMode = modeIndex == 10;
+
+        if (!chaosMode)
+        {
+            chaosOrder.Clear();
+            chaosPosition = 0;
+        }
 
         ModeButton.Text = modeIndex switch
         {
@@ -78,7 +78,8 @@ public partial class MainPage : ContentPage
             6 => "Switch to ASCII",
             7 => "Switch to Reversed",
             8 => "Switch to Morse Code",
-            9 => "Switch to Normal",
+            9 => "Switch to Chaos Mode",
+            10 => "Switch to Normal",
             _ => "Switch Mode"
         };
     }
@@ -88,7 +89,6 @@ public partial class MainPage : ContentPage
         string hours = Convert.ToString(time.Hour, 2).PadLeft(6, '0');
         string minutes = Convert.ToString(time.Minute, 2).PadLeft(6, '0');
         string seconds = Convert.ToString(time.Second, 2).PadLeft(6, '0');
-
         return $"{hours}:{minutes}:{seconds}";
     }
 
@@ -100,25 +100,20 @@ public partial class MainPage : ContentPage
     private string ConvertToWords(DateTime time)
     {
         int hour12 = time.Hour % 12 == 0 ? 12 : time.Hour % 12;
-
         string period = time.Hour < 12 ? "AM" : "PM";
-
         string hour = NumberToWords(hour12);
-
         string minute = time.Minute switch
         {
             0 => "o'clock",
             < 10 => "oh " + NumberToWords(time.Minute),
             _ => NumberToWords(time.Minute)
         };
-
         string second = time.Second switch
         {
             0 => "zero seconds",
             1 => "one second",
             _ => NumberToWords(time.Second) + " seconds"
         };
-
         return $"{hour} {minute} and {second} {period}";
     }
 
@@ -127,7 +122,6 @@ public partial class MainPage : ContentPage
         string hours = time.Hour.ToString("X2");
         string minutes = time.Minute.ToString("X2");
         string seconds = time.Second.ToString("X2");
-
         return $"{hours}:{minutes}:{seconds}";
     }
 
@@ -136,23 +130,23 @@ public partial class MainPage : ContentPage
         DateTimeOffset dto = new DateTimeOffset(time);
         return dto.ToUnixTimeSeconds().ToString();
     }
+
     private string ConvertToOctal(DateTime time)
     {
         string hours = Convert.ToString(time.Hour, 8).PadLeft(2, '0');
         string minutes = Convert.ToString(time.Minute, 8).PadLeft(2, '0');
         string seconds = Convert.ToString(time.Second, 8).PadLeft(2, '0');
-
         return $"{hours}:{minutes}:{seconds}";
     }
 
     private string ConvertToAscii(DateTime time)
     {
         string normal = time.ToString("HH:mm:ss");
-
         return string.Join(" ", normal.Select(c =>
             c == ':' ? ":" : ((int)c).ToString()
         ));
     }
+
     private string ConvertToReversed(DateTime time)
     {
         string normal = time.ToString("HH:mm:ss");
@@ -160,15 +154,15 @@ public partial class MainPage : ContentPage
         Array.Reverse(arr);
         return new string(arr);
     }
+
     private string ConvertToMorse(DateTime time)
     {
         var morseMap = new Dictionary<char, string>
-    {
-        {'0', "-----"}, {'1', ".----"}, {'2', "..---"}, {'3', "...--"},
-        {'4', "....-"}, {'5', "....."}, {'6', "-...."}, {'7', "--..."},
-        {'8', "---.."}, {'9', "----."}, {':', ":"}
-    };
-
+        {
+            {'0', "-----"}, {'1', ".----"}, {'2', "..---"}, {'3', "...--"},
+            {'4', "....-"}, {'5', "....."}, {'6', "-...."}, {'7', "--..."},
+            {'8', "---.."}, {'9', "----."}, {':', ":"}
+        };
         string normal = time.ToString("HH:mm:ss");
         return string.Join(" ", normal.Select(c => morseMap[c]));
     }
@@ -176,7 +170,6 @@ public partial class MainPage : ContentPage
     private string ToRoman(int number)
     {
         if (number == 0) return "N";
-
         var map = new Dictionary<int, string>
         {
             {1000, "M"}, {900, "CM"}, {500, "D"}, {400, "CD"},
@@ -184,7 +177,6 @@ public partial class MainPage : ContentPage
             {10, "X"}, {9, "IX"}, {5, "V"}, {4, "IV"},
             {1, "I"}
         };
-
         var roman = "";
         foreach (var kvp in map)
         {
@@ -204,12 +196,10 @@ public partial class MainPage : ContentPage
             "zero","one","two","three","four","five","six","seven","eight","nine",
             "ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen"
         };
-
         string[] tens =
         {
             "","","twenty","thirty","forty","fifty"
         };
-
         if (number < 20) return numbers[number];
         if (number < 60)
         {
