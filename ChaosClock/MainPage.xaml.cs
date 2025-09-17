@@ -32,6 +32,11 @@ public partial class MainPage : ContentPage
             {
                 ClockLabel.Text = ConvertToWords(DateTime.Now);
             }
+            else if (modeIndex == 4)
+            {
+                ClockLabel.Text = ConvertToHex(DateTime.Now);
+            }
+
             else
             {
                 ClockLabel.Text = DateTime.Now.ToString("HH:mm:ss");
@@ -41,16 +46,18 @@ public partial class MainPage : ContentPage
 
     private void OnSwitchModeClicked(object sender, EventArgs e)
     {
-        modeIndex = (modeIndex + 1) % 4;
+        modeIndex = (modeIndex + 1) % 5;
 
         ModeButton.Text = modeIndex switch
         {
             0 => "Switch to Binary",
             1 => "Switch to Roman Numerals",
             2 => "Switch to Words",
-            3 => "Switch to Normal",
+            3 => "Switch to Hexadecimal",
+            4 => "Switch to Normal",
             _ => "Switch Mode"
         };
+
     }
 
     private string ConvertToBinary(DateTime time)
@@ -91,6 +98,16 @@ public partial class MainPage : ContentPage
 
         return $"{hour} {minute} and {second} {period}";
     }
+
+    private string ConvertToHex(DateTime time)
+    {
+        string hours = time.Hour.ToString("X2");
+        string minutes = time.Minute.ToString("X2");
+        string seconds = time.Second.ToString("X2");
+
+        return $"{hours}:{minutes}:{seconds}";
+    }
+
 
     private string ToRoman(int number)
     {
