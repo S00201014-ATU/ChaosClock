@@ -11,9 +11,9 @@
                TextColor="Lime"
                HorizontalOptions="Center" />
 
-        <Button x:Name="ToggleButton"
-                Text="Toggle Binary"
-                Clicked="onToggleBinaryClicked"
+        <Button x:Name="ModeButton"
+                Text="Switch Mode"
+                Clicked="OnSwitchModeClicked"
                 HorizontalOptions="Center" />
     </VerticalStackLayout>
 
