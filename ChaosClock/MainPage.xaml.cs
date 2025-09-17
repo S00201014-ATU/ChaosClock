@@ -48,6 +48,10 @@ public partial class MainPage : ContentPage
             {
                 ClockLabel.Text = ConvertToAscii(DateTime.Now);
             }
+            else if (modeIndex == 8)
+            {
+                ClockLabel.Text = ConvertToReversed(DateTime.Now);
+            }
             else
             {
                 ClockLabel.Text = DateTime.Now.ToString("HH:mm:ss");
@@ -57,7 +61,7 @@ public partial class MainPage : ContentPage
 
     private void OnSwitchModeClicked(object sender, EventArgs e)
     {
-        modeIndex = (modeIndex + 1) % 8;
+        modeIndex = (modeIndex + 1) % 9;
 
         ModeButton.Text = modeIndex switch
         {
@@ -68,7 +72,8 @@ public partial class MainPage : ContentPage
             4 => "Switch to Unix Timestamp",
             5 => "Switch to Octal",
             6 => "Switch to ASCII",
-            7 => "Switch to Normal",
+            7 => "Switch to Reversed",
+            8 => "Switch to Normal",
             _ => "Switch Mode"
         };
     }
@@ -143,6 +148,14 @@ public partial class MainPage : ContentPage
             c == ':' ? ":" : ((int)c).ToString()
         ));
     }
+    private string ConvertToReversed(DateTime time)
+    {
+        string normal = time.ToString("HH:mm:ss");
+        char[] arr = normal.ToCharArray();
+        Array.Reverse(arr);
+        return new string(arr);
+    }
+
     private string ToRoman(int number)
     {
         if (number == 0) return "N";
