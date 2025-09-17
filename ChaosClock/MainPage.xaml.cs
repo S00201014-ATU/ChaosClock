@@ -40,6 +40,10 @@ public partial class MainPage : ContentPage
             {
                 ClockLabel.Text = ConvertToUnixTimestamp(DateTime.Now);
             }
+            else if (modeIndex == 6)
+            {
+                ClockLabel.Text = ConvertToOctal(DateTime.Now);
+            }
             else
             {
                 ClockLabel.Text = DateTime.Now.ToString("HH:mm:ss");
@@ -49,7 +53,7 @@ public partial class MainPage : ContentPage
 
     private void OnSwitchModeClicked(object sender, EventArgs e)
     {
-        modeIndex = (modeIndex + 1) % 6;
+        modeIndex = (modeIndex + 1) % 7;
 
         ModeButton.Text = modeIndex switch
         {
@@ -58,9 +62,11 @@ public partial class MainPage : ContentPage
             2 => "Switch to Words",
             3 => "Switch to Hexadecimal",
             4 => "Switch to Unix Timestamp",
-            5 => "Switch to Normal",
+            5 => "Switch to Octal",
+            6 => "Switch to Normal",
             _ => "Switch Mode"
         };
+
 
 
     }
@@ -118,6 +124,15 @@ public partial class MainPage : ContentPage
         DateTimeOffset dto = new DateTimeOffset(time);
         return dto.ToUnixTimeSeconds().ToString();
     }
+    private string ConvertToOctal(DateTime time)
+    {
+        string hours = Convert.ToString(time.Hour, 8).PadLeft(2, '0');
+        string minutes = Convert.ToString(time.Minute, 8).PadLeft(2, '0');
+        string seconds = Convert.ToString(time.Second, 8).PadLeft(2, '0');
+
+        return $"{hours}:{minutes}:{seconds}";
+    }
+
 
     private string ToRoman(int number)
     {
