@@ -36,7 +36,10 @@ public partial class MainPage : ContentPage
             {
                 ClockLabel.Text = ConvertToHex(DateTime.Now);
             }
-
+            else if (modeIndex == 5)
+            {
+                ClockLabel.Text = ConvertToUnixTimestamp(DateTime.Now);
+            }
             else
             {
                 ClockLabel.Text = DateTime.Now.ToString("HH:mm:ss");
@@ -46,7 +49,7 @@ public partial class MainPage : ContentPage
 
     private void OnSwitchModeClicked(object sender, EventArgs e)
     {
-        modeIndex = (modeIndex + 1) % 5;
+        modeIndex = (modeIndex + 1) % 6;
 
         ModeButton.Text = modeIndex switch
         {
@@ -54,9 +57,11 @@ public partial class MainPage : ContentPage
             1 => "Switch to Roman Numerals",
             2 => "Switch to Words",
             3 => "Switch to Hexadecimal",
-            4 => "Switch to Normal",
+            4 => "Switch to Unix Timestamp",
+            5 => "Switch to Normal",
             _ => "Switch Mode"
         };
+
 
     }
 
@@ -108,6 +113,11 @@ public partial class MainPage : ContentPage
         return $"{hours}:{minutes}:{seconds}";
     }
 
+    private string ConvertToUnixTimestamp(DateTime time)
+    {
+        DateTimeOffset dto = new DateTimeOffset(time);
+        return dto.ToUnixTimeSeconds().ToString();
+    }
 
     private string ToRoman(int number)
     {
