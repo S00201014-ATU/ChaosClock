@@ -28,6 +28,10 @@ public partial class MainPage : ContentPage
             {
                 ClockLabel.Text = ConvertToRomanNumerals(DateTime.Now);
             }
+            else if (modeIndex == 3)
+            {
+                ClockLabel.Text = ConvertToWords(DateTime.Now);
+            }
             else
             {
                 ClockLabel.Text = DateTime.Now.ToString("HH:mm:ss");
@@ -37,13 +41,14 @@ public partial class MainPage : ContentPage
 
     private void OnSwitchModeClicked(object sender, EventArgs e)
     {
-        modeIndex = (modeIndex + 1) % 3;
+        modeIndex = (modeIndex + 1) % 4;
 
         ModeButton.Text = modeIndex switch
         {
             0 => "Switch to Binary",
             1 => "Switch to Roman Numerals",
-            2 => "Switch to Normal",
+            2 => "Switch to Words",
+            3 => "Switch to Normal",
             _ => "Switch Mode"
         };
     }
@@ -60,6 +65,31 @@ public partial class MainPage : ContentPage
     private string ConvertToRomanNumerals(DateTime time)
     {
         return $"{ToRoman(time.Hour)}:{ToRoman(time.Minute)}:{ToRoman(time.Second)}";
+    }
+
+    private string ConvertToWords(DateTime time)
+    {
+        int hour12 = time.Hour % 12 == 0 ? 12 : time.Hour % 12;
+
+        string period = time.Hour < 12 ? "AM" : "PM";
+
+        string hour = NumberToWords(hour12);
+
+        string minute = time.Minute switch
+        {
+            0 => "o'clock",
+            < 10 => "oh " + NumberToWords(time.Minute),
+            _ => NumberToWords(time.Minute)
+        };
+
+        string second = time.Second switch
+        {
+            0 => "zero seconds",
+            1 => "one second",
+            _ => NumberToWords(time.Second) + " seconds"
+        };
+
+        return $"{hour} {minute} and {second} {period}";
     }
 
     private string ToRoman(int number)
@@ -84,5 +114,28 @@ public partial class MainPage : ContentPage
             }
         }
         return roman;
+    }
+
+    private string NumberToWords(int number)
+    {
+        string[] numbers =
+        {
+            "zero","one","two","three","four","five","six","seven","eight","nine",
+            "ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen"
+        };
+
+        string[] tens =
+        {
+            "","","twenty","thirty","forty","fifty"
+        };
+
+        if (number < 20) return numbers[number];
+        if (number < 60)
+        {
+            string ten = tens[number / 10];
+            string ones = number % 10 == 0 ? "" : " " + numbers[number % 10];
+            return ten + ones;
+        }
+        return number.ToString();
     }
 }
